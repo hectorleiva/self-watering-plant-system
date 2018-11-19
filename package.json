@@ -1,0 +1,26 @@
+{
+  "name": "self-watering-plant-system",
+  "version": "1.0.0",
+  "description": "Moisture Sensor, Water Level Sensor, and Submersible Water Pump combined to water a plant based on the water level available and moisture level of the plant itself.",
+  "main": "moisture_sensor.js",
+  "dependencies": {
+    "johnny-five": "^1.0.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hectorleiva/self-watering-plant-system.git"
+  },
+  "keywords": [
+    "self-watering",
+    "plants",
+    "arduino",
+    "johnny-five"
+  ],
+  "author": "Hector Leiva",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hectorleiva/self-watering-plant-system/issues"
+  },
+  "homepage": "https://github.com/hectorleiva/self-watering-plant-system#readme"
+}

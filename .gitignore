@@ -1,0 +1,11 @@
+# Mac
+.DS_Store
+
+# VIM
+*.swp
+
+# Node
+node_modules/
+
+# VSCode
+.vscode
