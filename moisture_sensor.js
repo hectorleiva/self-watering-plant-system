@@ -4,6 +4,7 @@ var board = new five.Board();
 // Moisture Sensor
 var soilAnalogReadPin = 0; // Analog Pin 0
 var soilDigitalPowerPin = 7; // Digital Pin 7
+var moistureSensorBufferValue = 25; // Must be above this value to avoid accidently getting low-reading voltage values randomly
 
 // Water Sensor
 var waterDigitalReadPin = 1; // Analog Pin 1
@@ -50,7 +51,7 @@ function isPlantDry(value) {
 }
 
 function togglePlantWatering(board, incomingSoilMoistureVal, waterLevelIsAcceptable) {
-  if (incomingSoilMoistureVal > 5) {
+  if (incomingSoilMoistureVal > moistureSensorBufferValue) {
     if (waterLevelIsAcceptable) {
       if (isPlantDry(incomingSoilMoistureVal)) {
         startWateringPlants(board);
