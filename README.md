@@ -10,6 +10,8 @@ Using the following pieces of equipment:
 
 I created a watering system that would allow a plant whose moisture falls below a certain threshold to be able to get water from a water source that has enough water to be able to water the plant.
 
+Note: A 1-Channel DC 5V Power Relay is also acceptable
+
 ## How it works
 
 ### Check the Water Level
