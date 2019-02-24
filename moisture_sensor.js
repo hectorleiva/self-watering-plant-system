@@ -1,11 +1,6 @@
 var five = require('johnny-five');
 var board = new five.Board();
 
-// Moisture Sensor
-var soilAnalogReadPin = 0; // Analog Pin 0
-var soilDigitalPowerPin = 7; // Digital Pin 7
-var moistureSensorBufferValue = 25; // Must be above this value to avoid accidently getting low-reading voltage values randomly
-
 // Water Sensor
 var waterDigitalReadPin = 1; // Analog Pin 1
 
@@ -13,16 +8,6 @@ var waterDigitalReadPin = 1; // Analog Pin 1
 var relayDigitalSwitchPin = 8; // Digital Pin 8
 var RELAY_OFF = 1;
 var RELAY_ON = 0;
-
-/**
- * Global Values
- */
-
-// Moisture Sensor Initial
-var targetMoistureVal = 500;
-
-// Water Sensor Values
-var minWaterLevelVal = 130;
 
 // Relay Operations
 function startWateringPlants(board) {
@@ -34,7 +19,7 @@ function stopWateringPlants(board) {
 }
 
 // Checks
-function waterLevelCheck(value) {
+function waterLevelCheck(value, minWaterLevelVal) {
   if (value >= minWaterLevelVal) {
     return true;
   } else {
@@ -42,7 +27,7 @@ function waterLevelCheck(value) {
   }
 }
 
-function isPlantDry(value) {
+function isPlantDry(value, targetMoistureVal) {
   if (value <= targetMoistureVal) {
     return true;
   } else {
@@ -50,12 +35,16 @@ function isPlantDry(value) {
   }
 }
 
-function togglePlantWatering(board, incomingSoilMoistureVal, waterLevelIsAcceptable) {
+function togglePlantWatering(board, incomingSoilMoistureVal, waterLevelIsAcceptable, targetMoistureVal) {
+  var moistureSensorBufferValue = 25; // Must be above this value to avoid accidently getting low-reading voltage values randomly
+
   if (incomingSoilMoistureVal > moistureSensorBufferValue) {
     if (waterLevelIsAcceptable) {
-      if (isPlantDry(incomingSoilMoistureVal)) {
+      if (isPlantDry(incomingSoilMoistureVal, targetMoistureVal)) {
+        board.info("Board", "plant is dry!");
         startWateringPlants(board);
       } else {
+        board.info("Board", "plant is doing a-ok");
         stopWateringPlants(board);
       }
     } else {
@@ -64,45 +53,50 @@ function togglePlantWatering(board, incomingSoilMoistureVal, waterLevelIsAccepta
   }
 }
 
-function turnOnDigitalReaders(board) {
+function turnOnDigitalReaders(board, soilDigitalPowerPin) {
   board.digitalWrite(soilDigitalPowerPin, 1); // Turn on to start reading the soilDataPin
 }
 
-function turnOffDigitalReaders(board) {
+function turnOffDigitalReaders(board, soilDigitalPowerPin) {
   board.digitalWrite(soilDigitalPowerPin, 0); // Turn off to stop reading the soilDataPin
 }
 
 board.on('ready', function() {
   var waterLevelIsAcceptable = true;
-  this.pinMode(soilDigitalPowerPin, five.Pin.OUTPUT);
-  this.pinMode(soilAnalogReadPin, five.Pin.INPUT);
 
-  this.pinMode(relayDigitalSwitchPin, five.Pin.OUTPUT);
+  // Moisture Sensor
+  var soilAnalogReadPin = 0; // Analog Pin 0
+  var soilDigitalPowerPin = 7; // Digital Pin 7
+
+  // Moisture Sensor Initial
+  var targetMoistureVal = 500;
+
+  // Water Sensor Values
+  var minWaterLevelVal = 180;
+
+
+  board.pinMode(soilDigitalPowerPin, five.Pin.OUTPUT);
+  board.pinMode(soilAnalogReadPin, five.Pin.INPUT);
+
+  board.pinMode(relayDigitalSwitchPin, five.Pin.OUTPUT);
 
   // Ensure this is turned off when starting
-  this.digitalWrite(soilDigitalPowerPin, 0);
-  this.digitalWrite(relayDigitalSwitchPin, RELAY_OFF);
+  board.digitalWrite(soilDigitalPowerPin, 0);
+  board.digitalWrite(relayDigitalSwitchPin, RELAY_OFF);
 
-  this.analogRead(waterDigitalReadPin, function(val) {
-    waterLevelIsAcceptable = waterLevelCheck(val);
+  turnOnDigitalReaders(board, soilDigitalPowerPin);
+
+  board.analogRead(waterDigitalReadPin, function(val) {
+    waterLevelIsAcceptable = waterLevelCheck(val, minWaterLevelVal);
   });
 
-  this.analogRead(soilAnalogReadPin, function(voltage) {
-    togglePlantWatering(board, voltage, waterLevelIsAcceptable);
+  board.analogRead(soilAnalogReadPin, function(voltage) {
+    togglePlantWatering(board, voltage, waterLevelIsAcceptable, targetMoistureVal);
   });
 
-  // Every 10 seconds, turn on the digital power
-  this.loop(3000, function() {
-    turnOnDigitalReaders(board);
-
-    // Wait 100 milliseconds and then turn this off
-    board.wait(1000, function() {
-      turnOffDigitalReaders(board);
-    });
-  });
-
-  this.on("exit", function() {
+  board.on("exit", function() {
     board.digitalWrite(relayDigitalSwitchPin, RELAY_OFF);
     board.digitalWrite(soilDigitalPowerPin, 0);
+    board.info("Board", "Exiting");
   });
 });
