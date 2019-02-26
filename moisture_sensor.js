@@ -6,8 +6,8 @@ var waterDigitalReadPin = 1; // Analog Pin 1
 
 // Relay
 var relayDigitalSwitchPin = 8; // Digital Pin 8
-var RELAY_OFF = 1;
-var RELAY_ON = 0;
+var RELAY_OFF = 0;
+var RELAY_ON = 1;
 
 // Relay Operations
 function startWateringPlants(board) {
