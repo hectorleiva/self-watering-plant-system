@@ -1,8 +1,8 @@
 var five = require('johnny-five');
 var board = new five.Board();
 
-// Water Sensor
-var waterDigitalReadPin = 1; // Analog Pin 1
+// Sonar Sensor
+var sonarSensorAnalogReadPin = 1; // Analog Pin 1
 
 // Relay
 var relayDigitalSwitchPin = 8; // Digital Pin 8
@@ -20,7 +20,8 @@ function stopWateringPlants(board) {
 
 // Checks
 function waterLevelCheck(value, minWaterLevelVal) {
-  if (value >= minWaterLevelVal) {
+  // console.log(`water level check: ${value} and minWaterLevelVal: ${minWaterLevelVal}`);
+  if (value <= minWaterLevelVal) {
     return true;
   } else {
     return false;
@@ -37,6 +38,7 @@ function isPlantDry(value, targetMoistureVal) {
 
 function togglePlantWatering(board, incomingSoilMoistureVal, waterLevelIsAcceptable, targetMoistureVal) {
   var moistureSensorBufferValue = 25; // Must be above this value to avoid accidently getting low-reading voltage values randomly
+  // console.log(`incoming moisture sensor value: ${incomingSoilMoistureVal} and waterLevelIsAcceptable: ${waterLevelIsAcceptable} and targetMoisture Val: ${targetMoistureVal}`);
 
   if (incomingSoilMoistureVal > moistureSensorBufferValue) {
     if (waterLevelIsAcceptable) {
@@ -57,12 +59,8 @@ function turnOnDigitalReaders(board, soilDigitalPowerPin) {
   board.digitalWrite(soilDigitalPowerPin, 1); // Turn on to start reading the soilDataPin
 }
 
-function turnOffDigitalReaders(board, soilDigitalPowerPin) {
-  board.digitalWrite(soilDigitalPowerPin, 0); // Turn off to stop reading the soilDataPin
-}
-
 board.on('ready', function() {
-  var waterLevelIsAcceptable = true;
+  var waterLevelIsAcceptable = false;
 
   // Moisture Sensor
   var soilAnalogReadPin = 0; // Analog Pin 0
@@ -72,8 +70,11 @@ board.on('ready', function() {
   var targetMoistureVal = 500;
 
   // Water Sensor Values
-  var minWaterLevelVal = 180;
+  var minWaterLevelVal = 550;
 
+  // This will limit sampling of all Analog Input
+  // and I2C sensors to once per second (1000 milliseconds)
+  this.samplingInterval(1000);
 
   board.pinMode(soilDigitalPowerPin, five.Pin.OUTPUT);
   board.pinMode(soilAnalogReadPin, five.Pin.INPUT);
@@ -86,7 +87,7 @@ board.on('ready', function() {
 
   turnOnDigitalReaders(board, soilDigitalPowerPin);
 
-  board.analogRead(waterDigitalReadPin, function(val) {
+  board.analogRead(sonarSensorAnalogReadPin, function(val) {
     waterLevelIsAcceptable = waterLevelCheck(val, minWaterLevelVal);
   });
 
