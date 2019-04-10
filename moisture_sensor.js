@@ -20,7 +20,6 @@ function stopWateringPlants(board) {
 
 // Checks
 function waterLevelCheck(value, minWaterLevelVal) {
-  // console.log(`water level check: ${value} and minWaterLevelVal: ${minWaterLevelVal}`);
   if (value <= minWaterLevelVal) {
     return true;
   } else {
@@ -38,7 +37,6 @@ function isPlantDry(value, targetMoistureVal) {
 
 function togglePlantWatering(board, incomingSoilMoistureVal, waterLevelIsAcceptable, targetMoistureVal) {
   var moistureSensorBufferValue = 25; // Must be above this value to avoid accidently getting low-reading voltage values randomly
-  // console.log(`incoming moisture sensor value: ${incomingSoilMoistureVal} and waterLevelIsAcceptable: ${waterLevelIsAcceptable} and targetMoisture Val: ${targetMoistureVal}`);
 
   if (incomingSoilMoistureVal > moistureSensorBufferValue) {
     if (waterLevelIsAcceptable) {
