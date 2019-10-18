@@ -4,7 +4,7 @@
   "description": "Moisture Sensor, Water Level Sensor, and Submersible Water Pump combined to water a plant based on the water level available and moisture level of the plant itself.",
   "main": "moisture_sensor.js",
   "dependencies": {
-    "johnny-five": "^1.0.0"
+    "johnny-five": "^1.3.1"
   },
   "devDependencies": {},
   "repository": {
